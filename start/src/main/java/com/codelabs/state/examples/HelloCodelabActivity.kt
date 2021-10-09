@@ -113,6 +113,7 @@ class HelloActivityCompose : AppCompatActivity() {
     }
 }
 
+
 @Composable
 private fun HelloScreen(helloViewModel: HelloViewModel = viewModel()) {
     // helloViewModel follows the Lifecycle as the the Activity or Fragment that calls this
