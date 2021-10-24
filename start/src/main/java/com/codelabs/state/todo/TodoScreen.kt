@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelabs.state.util.generateRandomTodoItem
@@ -41,9 +40,13 @@ import kotlin.random.Random
 
 @ExperimentalComposeUiApi
 @Composable
-fun TodoInputTextField(text: String, onTextChange: (String) -> Unit, modifier: Modifier, onImeAction: () -> Unit = {}
+fun TodoInputTextField(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier,
+    onImeAction: () -> Unit = {}
 ) {
-    TodoInputText(text = text, onTextChange = onTextChange, modifier = modifier){
+    TodoInputText(text = text, onTextChange = onTextChange, modifier = modifier) {
 
     }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -62,12 +65,11 @@ fun TodoInputTextField(text: String, onTextChange: (String) -> Unit, modifier: M
 }
 
 
-
 @Composable
-fun TodoItemInput(onItemComplete: (TodoItem) -> Unit) {
+fun TodoItemEntryInput(onItemComplete: (TodoItem) -> Unit) {
     //onItemComplete is an event will fire when an item is completed by the user
-    val (text, setText) = remember { mutableStateOf("")}
-    val (icon, setIcon) = remember { mutableStateOf(TodoIcon.Default)}
+    val (text, setText) = remember { mutableStateOf("") }
+    val (icon, setIcon) = remember { mutableStateOf(TodoIcon.Default) }
     val iconsVisible = text.isNotBlank()
     val submit = {
         onItemComplete(TodoItem(text, icon))
@@ -75,7 +77,27 @@ fun TodoItemInput(onItemComplete: (TodoItem) -> Unit) {
         setText("")
     }
 
-    Column{
+    TodoItemEntryInput(
+        text = text,
+        onTextChange = setText,
+        icon = icon,
+        onIconChange = setIcon,
+        submit = submit,
+        iconsVisible = iconsVisible
+    )
+
+}
+
+@Composable
+fun TodoItemEntryInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    icon: TodoIcon,
+    onIconChange: (TodoIcon) -> Unit,
+    submit: () -> Unit,
+    iconsVisible: Boolean
+) {
+    Column {
         Row(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -83,11 +105,11 @@ fun TodoItemInput(onItemComplete: (TodoItem) -> Unit) {
         ) {
             TodoInputText(
                 text = text,
-                onTextChange = setText,
+                onTextChange = onTextChange,
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp),
-            onImeAction = submit
+                onImeAction = submit
             )
             TodoEditButton(
                 onClick = submit,
@@ -96,13 +118,12 @@ fun TodoItemInput(onItemComplete: (TodoItem) -> Unit) {
                 enabled = text.isNotBlank()
             )
         }
-        if(iconsVisible) {
-            AnimatedIconRow(icon, setIcon, Modifier.padding(top = 8.dp))
+        if (iconsVisible) {
+            AnimatedIconRow(icon, onIconChange, Modifier.padding(top = 8.dp))
         } else {
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
-
 }
 
 /**
@@ -121,7 +142,7 @@ fun TodoScreen(
 
     Column {
         TodoItemInputBackground(elevate = true, modifier = Modifier.fillMaxWidth()) {
-            TodoItemInput(onItemComplete = onAddItem)
+            TodoItemEntryInput(onItemComplete = onAddItem)
         }
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -166,7 +187,7 @@ fun TodoRow(
         modifier = modifier
             .clickable { onItemClicked(todo) }
             .padding(horizontal = 16.dp, vertical = 8.dp),
-    horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(todo.task)
         Icon(
@@ -195,7 +216,7 @@ fun PreviewTodoScreen() {
 
 @Preview
 @Composable
-fun PreviewTodoItemInput() = TodoItemInput(onItemComplete = { })
+fun PreviewTodoItemInput() = TodoItemEntryInput(onItemComplete = { })
 
 @Preview
 @Composable
